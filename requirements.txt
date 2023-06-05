@@ -1,0 +1,5 @@
+transformers
+sentencepiece
+tqdm
+torch
+protobuf==3.20.*
