@@ -9,7 +9,7 @@ Moscow, 2023
 
 ## Генеративная модель
 **generator_script.py**
-- input_file: формат jsonl, каждый диалог в виде 
+- **input_file**: формат jsonl, каждый диалог в виде 
 ```json
 {
   "dialog": [
@@ -20,7 +20,7 @@ Moscow, 2023
   "real_answer": "turn 4"
 }
 ```
-- output_file: формат jsonl, каждый диалог в виде
+- **output_file**: формат jsonl, каждый диалог в виде
 ```json
 {
   "dialog": [
@@ -44,13 +44,13 @@ Moscow, 2023
   "change_type": "change_type"
 }
 ```
-- generator: инициализированная модель
-- num_dialogs (int, None): количество диалогов (если не указать, будут обработаны все диалоги в input_file)
-- num_answers (int, 15): значение параметра num_return_sequences для модели генерации
-- longest (bool, True): отсортировать диалоги по количеству реплик, начиная с самых длинных
-- fixed (bool, False): предопределенные параметры генерации на всю выборку, если True
-- random_params (bool, False): сэмплировать значения параметров для каждого диалога, если True
-- \*\*generation_parameters: параметры генерации, если fixed=True
+- **generator**: инициализированная модель
+- **num_dialogs** (int, None): количество диалогов (если не указать, будут обработаны все диалоги в input_file)
+- **num_answers** (int, 15): значение параметра num_return_sequences для модели генерации
+- **longest** (bool, True): отсортировать диалоги по количеству реплик, начиная с самых длинных
+- **fixed** (bool, False): предопределенные параметры генерации на всю выборку, если True
+- **random_params** (bool, False): сэмплировать значения параметров для каждого диалога, если True
+- \*\***generation_parameters**: параметры генерации, если fixed=True
 
 **Пример вызова функции:**
 ```
@@ -66,8 +66,8 @@ generate_answers("emp_train.jsonl", "generated_random_params_big.txt", generator
 ## Модель для оценивания сгенерированных ответов
 **discriminator_script.py**
 
-1) evaluate_answers()
-- input_file: формат jsonl, каждый диалог в виде
+1) **evaluate_answers()**
+- **input_file**: формат jsonl, каждый диалог в виде
 ```json
 {
   "dialog": [
@@ -91,7 +91,7 @@ generate_answers("emp_train.jsonl", "generated_random_params_big.txt", generator
   "change_type": "change_type"
 }
 ```
-- output_file: формат jsonl, каждый диалог в виде
+- **output_file**: формат jsonl, каждый диалог в виде
 ```json
 {
   "dialog": [
@@ -117,9 +117,9 @@ generate_answers("emp_train.jsonl", "generated_random_params_big.txt", generator
   "std_score": "std_score"
 }
 ```
-- discriminator: инициализированная модель
-2) evaluate_answers_extra() -- для оценивания ответов с дефолтными и предсказанными параметрами
-- input_file: формат jsonl, каждый диалог в виде
+- **discriminator**: инициализированная модель
+2) **evaluate_answers_extra()** -- для оценивания ответов с дефолтными и предсказанными параметрами
+- **input_file**: формат jsonl, каждый диалог в виде
 ```json
 {
   "dialog": [
@@ -146,7 +146,7 @@ generate_answers("emp_train.jsonl", "generated_random_params_big.txt", generator
   }
 }
 ```
-- output_file: формат jsonl, каждый диалог в виде
+- **output_file**: формат jsonl, каждый диалог в виде
 ```json
 {
   "dialog": [
@@ -175,10 +175,10 @@ generate_answers("emp_train.jsonl", "generated_random_params_big.txt", generator
   "score_default_params": "score_default_params"
 }
 ```
-- discriminator: инициализированная модель
-3) count_stats()
-- input_file: формат jsonl вида output_file функции evaluate_answers()
-- random_type ('choice'/'sample'): либо среди предсказанных ответов выбирается один случайный (и его оценка), либо сначала сэмплируются случайные 5 и из них выбирается ответ с наибольшей оценкой
+- **discriminator**: инициализированная модель
+3) **count_stats()**
+- **input_file**: формат jsonl вида output_file функции evaluate_answers()
+- **random_type** ('choice'/'sample'): либо среди предсказанных ответов выбирается один случайный (и его оценка), либо сначала сэмплируются случайные 5 и из них выбирается ответ с наибольшей оценкой
 
 **Пример вызова функций:**
 ```
@@ -217,8 +217,8 @@ evaluate_answers_extra('generated_pred_params.jsonl', 'generated_pred_params_sco
 4) результаты оценивания ответов дискриминатором
 
 ## Данные
-- emp_train.jsonl и emp_test.jsonl: обучающая и тестовая выборки (полученные в результате 1-го шага предобработки)
-- generated_random_params_big_scores.jsonl: ответы, сгенерированные по рандомным наборам параметров, и их оценки, проставленные дискриминатором (полученные в результате 3-го шага предобработки)
-- final_big_embedded_good.jsonl: датасет для обучения предиктора (полученный в результате предобработки)
-- generated_pred_params.jsonl: ответы, сгенерированные по предсказанным и дефолтным параметрам (полученные в результате 1-го шага постобработки)
-- generated_pred_params_scores.jsonl: оцененные ответы по предсказанным и дефолтным параметрам (полученные в результате постобработки)
+- **emp_train.jsonl и emp_test.jsonl**: обучающая и тестовая выборки (полученные в результате 1-го шага предобработки)
+- **generated_random_params_big_scores.jsonl**: ответы, сгенерированные по рандомным наборам параметров, и их оценки, проставленные дискриминатором (полученные в результате 3-го шага предобработки)
+- **final_big_embedded_good.jsonl**: датасет для обучения предиктора (полученный в результате предобработки)
+- **generated_pred_params.jsonl**: ответы, сгенерированные по предсказанным и дефолтным параметрам (полученные в результате 1-го шага постобработки)
+- **generated_pred_params_scores.jsonl**: оцененные ответы по предсказанным и дефолтным параметрам (полученные в результате постобработки)
