@@ -167,7 +167,7 @@ if __name__ == "__main__":
     model_name = "allenai/cosmo-xl"
 
     generator = start_generator(model_name)
-    # _ = generate_answers("emp_train.jsonl", "generated_random_params_big.txt", generator, num_answers=5, random_params=True)
+    # _ = generate_answers("emp_train.jsonl", "generated_random_params_big.jsonl", generator, num_answers=5, random_params=True)
     _ = generate_answers("final_embedded_pred_params_with_type.jsonl", "generated_pred_params.jsonl", generator, num_answers=3, fixed=False, random_params=False)
 
 
