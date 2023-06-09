@@ -28,7 +28,7 @@ Moscow, 2023
       "turn 2",
       "turn 3"
   ],
-  "real_answer": "turn 4"
+  "real_answer": "turn 4",
   "predicted_answers": [
       {"answer": "answer 1"},
       {"answer": "answer 2"}, 
@@ -66,13 +66,140 @@ generate_answers("emp_train.jsonl", "generated_random_params_big.txt", generator
 ## Модель для оценивания сгенерированных ответов
 **discriminator_script.py**
 
+1) evaluate_answers()
+- input_file: формат jsonl, каждый диалог в виде
+```json
+{
+  "dialog": [
+      "turn 1",
+      "turn 2",
+      "turn 3"
+  ],
+  "real_answer": "turn 4",
+  "predicted_answers": [
+      {"answer": "answer 1"},
+      {"answer": "answer 2"}, 
+      {"answer": "answer 3"}
+  ],
+  "params": {
+      "top_p": "top_p",
+      "top_k": "top_k",
+      "typical_p": "typical_p",
+      "temperature": "temperature",
+      "do_sample": "True"
+  },
+  "change_type": "change_type"
+}
+```
+- output_file: формат jsonl, каждый диалог в виде
+```json
+{
+  "dialog": [
+      "turn 1",
+      "turn 2",
+      "turn 3"
+  ],
+  "real_answer": "turn 4",
+  "predicted_answers": [
+      {"answer": "answer 1", "score": "score"},
+      {"answer": "answer 2", "score": "score"}, 
+      {"answer": "answer 3", "score": "score"}
+  ],
+  "params": {
+      "top_p": "top_p",
+      "top_k": "top_k",
+      "typical_p": "typical_p",
+      "temperature": "temperature",
+      "do_sample": "True"
+  },
+  "change_type": "change_type",
+  "mean_score": "mean_score",
+  "std_score": "std_score"
+}
+```
+- discriminator: инициализированная модель
+2) evaluate_answers_extra() -- для оценивания ответов с дефолтными и предсказанными параметрами
+- input_file: формат jsonl, каждый диалог в виде
+```json
+{
+  "dialog": [
+      "turn 1",
+      "turn 2",
+      "turn 3"
+  ],
+  "answer_pred_params": [
+      "answer 1",
+      "answer 2",
+      "answer 3"
+  ],
+  "answer_default_params": [
+      "answer 1",
+      "answer 2",
+      "answer 3"
+  ],
+  "pred_params": {
+      "top_p": "top_p",
+      "top_k": "top_k",
+      "typical_p": "typical_p",
+      "temperature": "temperature",
+      "do_sample": "True"
+  }
+}
+```
+- output_file: формат jsonl, каждый диалог в виде
+```json
+{
+  "dialog": [
+      "turn 1",
+      "turn 2",
+      "turn 3"
+  ],
+  "answer_pred_params": [
+      "answer 1",
+      "answer 2",
+      "answer 3"
+  ],
+  "answer_default_params": [
+      "answer 1",
+      "answer 2",
+      "answer 3"
+  ],
+  "pred_params": {
+      "top_p": "top_p",
+      "top_k": "top_k",
+      "typical_p": "typical_p",
+      "temperature": "temperature",
+      "do_sample": "True"
+  },
+  "score_pred_params": "score_pred_params",
+  "score_default_params": "score_default_params"
+}
+```
+- discriminator: инициализированная модель
+3) count_stats()
+- input_file: формат jsonl вида output_file функции evaluate_answers()
+- random_type ('choice'/'sample'): либо среди предсказанных ответов выбирается один случайный (и его оценка), либо сначала сэмплируются случайные 5 и из них выбирается ответ с наибольшей оценкой
+
+**Пример вызова функций:**
+```
+discriminator = start_discriminative("microsoft/deberta-v3-xsmall", "microsoft-deberta-v3-xsmall_rank_softmax.pt")
+evaluate_answers("generated_random_params_big.jsonl", "generated_random_params_big_scores.jsonl", discriminator)
+evaluate_answers_extra('generated_pred_params.jsonl', 'generated_pred_params_scores.jsonl', discriminator)
+```
+**Пример запуска скрипта:**
+```
+! pip install -r requirements.txt
+! python discriminator_script.py
+```
+
 ## Модель для предсказания параметров
 ### Предобработка
+- разбиение диалогов на контексты, деление на тренировочную и тестовую выборки
+- генерация ответов с рандомными параметрами из заданных массивов (generator_script.py: generate_answers(fixed=False, random_params=True))
+- оценивание ответов дискриминатором (discriminator_script.py: evaluate_answers())
 **preprocessing.ipynb**
-- взять empathetic, разбить диалоги на контексты (контекст = 1 не считается!!), поделить на трейн и тест
-- на трейне сгенерировать ответы с рандомными параметрами из заданных массивов (generator_script.py: fixed=False, random_params=True)
-- оценить ответы дискриминатором (discriminator_script.py)
-- выбрать лучшие 25% ответов = наборов параметров (качество > 0.25-quantile + условие на std и кол-во ответов) и преобразовать значения параметров в номера классов (preprocessing.ipynb) и их взять в качестве корпуса для обучения и валидации предиктора
+- преобразование значений параметров в номера классов
+- выбор примеров по ограничениям: качество >= 0.5-quantile & количество ответов >= 3 & std >= 0.03
 ### Обучение модели
 **parameters_predictor.ipynb**
 - обучить предиктор и предсказать параметры для тестовой выборки, которая не участвовала в генерации с рандомными параметрами
