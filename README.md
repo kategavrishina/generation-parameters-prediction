@@ -103,7 +103,9 @@ generate_answers("emp_train.jsonl", "generated_random_params_big.txt", generator
   "predicted_answers": [
       {"answer": "answer 1", "score": "score"},
       {"answer": "answer 2", "score": "score"}, 
-      {"answer": "answer 3", "score": "score"}
+      {"answer": "answer 3", "score": "score"},
+      {"answer": "answer 4", "score": "score"},
+      {"answer": "answer 5", "score": "score"}
   ],
   "params": {
       "top_p": "top_p",
@@ -114,7 +116,8 @@ generate_answers("emp_train.jsonl", "generated_random_params_big.txt", generator
   },
   "change_type": "change_type",
   "mean_score": "mean_score",
-  "std_score": "std_score"
+  "std_score": "std_score",
+  "num_answers": "num_answers"
 }
 ```
 - **discriminator**: инициализированная модель
